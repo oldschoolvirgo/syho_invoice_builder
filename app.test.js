@@ -9,8 +9,8 @@ test('invoice flow validates settings, escapes customer input, generates a PDF, 
   element('settings-form').elements={namedItem:key=>inputs[key]};
   let saved='';
   globalThis.localStorage={getItem:()=>null,setItem:(key,value)=>{saved=value;}};
-  const drawnFonts=[];
-  const context={scale(){},fillRect(){},fillText(){drawnFonts.push(this.font);},beginPath(){},moveTo(){},lineTo(){},stroke(){},measureText:value=>({width:value.length*6})};
+  const drawnFonts=[],drawnText=[];
+  const context={scale(){},fillRect(){},fillText(text){drawnFonts.push(this.font);drawnText.push(text);},beginPath(){},moveTo(){},lineTo(){},stroke(){},measureText:value=>({width:value.length*6})};
   globalThis.document={fonts:{load:async()=>[{}]},getElementById:element,createElement:()=>({getContext:()=>context,toDataURL:()=>`data:image/jpeg;base64,${Buffer.from([255,216,255,217]).toString('base64')}`})};
   let shared;
   Object.defineProperty(globalThis,'navigator',{configurable:true,value:{canShare:()=>true,share:async data=>{shared=data;}}});
@@ -36,6 +36,22 @@ test('invoice flow validates settings, escapes customer input, generates a PDF, 
   assert.equal(shared.files[0].name,'SYHO-250101.pdf');
   assert.equal(shared.files[0].type,'application/pdf');
   assert.ok((await shared.files[0].text()).startsWith('%PDF-1.4'));
+  element('discount').value='50';await fire('invoice-form','input');
+  assert.equal(element('save-pdf').disabled,true);
+  await fire('invoice-form','submit');
+  assert.equal(element('estimate').textContent,'$250.00');
+  assert.ok(element('invoice').innerHTML.includes('Flat discount'));
+  assert.ok(element('invoice').innerHTML.includes('$300.00'));
+  assert.ok(drawnText.includes('Flat discount   −$50.00'));
+  assert.ok(drawnText.includes('Total due   $250.00'));
+  for(const invalid of ['-1','300.01','1.001']){
+    element('discount').value=invalid;await fire('invoice-form','input');await fire('invoice-form','submit');
+    assert.equal(element('save-pdf').disabled,true);
+    assert.ok(element('status').textContent.includes('Enter a discount'));
+  }
+  element('discount').value='';await fire('invoice-form','input');await fire('invoice-form','submit');
+  assert.equal(element('estimate').textContent,'$300.00');
+  assert.ok(!element('invoice').innerHTML.includes('Flat discount'));
   element('include-ein').checked=true;await fire('invoice-form','input');
   assert.equal(element('save-pdf').disabled,true);
   await fire('invoice-form','submit');

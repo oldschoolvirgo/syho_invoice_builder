@@ -1,4 +1,13 @@
 export const RATE = 100;
+export function invoiceAmounts(hours, discount = 0) {
+  const subtotalCents = hours * RATE * 100;
+  const discountCents = Math.round(discount * 100);
+  if (!Number.isFinite(discount) || discount < 0 ||
+      Math.abs(discount * 100 - discountCents) > 0.000001 || discountCents > subtotalCents) {
+    throw new RangeError('Enter a discount from $0 to the service amount, with at most two decimal places.');
+  }
+  return {subtotal: subtotalCents / 100, discount: discountCents / 100, total: (subtotalCents - discountCents) / 100};
+}
 export function localDate(date = new Date()) { return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`; }
 export function defaultNumber(date) { return `SYHO-${date.slice(2).replaceAll('-','')}`; }
 export function displayDate(value) { const [y,m,d] = value.split('-'); return `${m}/${d}/${y}`; }

@@ -27,6 +27,12 @@
                 max="1000" step="1" value="1" required><small>Enter whole hours, rounded
                 up.</small></label><label>Hourly rate<input value="$100.00" readonly
                 aria-label="Fixed hourly rate"></label></div>
+          <details id="discounts-panel">
+            <summary>Discounts <span aria-hidden="true">＋</span></summary>
+            <label>Flat discount ($) <small>Optional · deducted once from the invoice total.</small>
+              <input id="discount" type="number" inputmode="decimal" min="0" step="0.01" placeholder="0.00">
+            </label>
+          </details>
           <div class="estimate"><span>Invoice total</span><strong id="estimate">$100.00</strong></div>
           <div class="options"><label><input id="include-address" type="checkbox"> Include mailing
               address</label><label><input id="include-ein" type="checkbox"> Include EIN</label></div>

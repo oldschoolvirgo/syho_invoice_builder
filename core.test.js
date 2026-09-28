@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {localDate,defaultNumber,dueDate,displayDate,senderLines,paymentLines,pdfBytes} from './core.js';
+import {invoiceAmounts,localDate,defaultNumber,dueDate,displayDate,senderLines,paymentLines,pdfBytes} from './core.js';
+test('flat discounts preserve the service amount and subtract once, using cents',()=>{
+  assert.deepEqual(invoiceAmounts(3,50),{subtotal:300,discount:50,total:250});
+  assert.equal(invoiceAmounts(3).total,300);
+  assert.equal(invoiceAmounts(3,50.25).total,249.75);
+  assert.equal(invoiceAmounts(3,300).total,0);
+  for(const discount of [-1,300.01,0.001,NaN,Infinity])assert.throws(()=>invoiceAmounts(3,discount),RangeError);
+});
 test('dates use local calendar and cross month, leap day, and year boundaries',()=>{
   assert.equal(localDate(new Date(2026,8,7,23)), '2026-09-07');
   assert.equal(defaultNumber('2026-09-07'),'SYHO-260907');
