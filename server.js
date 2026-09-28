@@ -1,0 +1,4 @@
+import http from 'node:http';
+import {readFile} from 'node:fs/promises';
+const files={'/':'index.html','/index.html':'index.html','/styles.css':'styles.css','/app.js':'app.js','/core.js':'core.js','/fonts/InterVariable.woff2':'fonts/InterVariable.woff2'};
+http.createServer(async(req,res)=>{const file=files[new URL(req.url,'http://localhost').pathname];if(!file){res.writeHead(404);res.end('Not found');return;}try{const content=await readFile(new URL(file,import.meta.url));res.setHeader('Content-Type',file.endsWith('.woff2')?'font/woff2':file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'text/html');res.end(content);}catch{res.writeHead(500);res.end('Unable to read file');}}).listen(4173,'0.0.0.0',()=>console.log('Invoice Studio: http://localhost:4173'));

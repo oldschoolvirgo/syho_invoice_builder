@@ -1,0 +1,6 @@
+{
+  "name": "syho-invoice-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {"test": "node core.test.js && node app.test.js", "start": "node server.js"}
+}
